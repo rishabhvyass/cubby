@@ -1,28 +1,34 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-console.log('App.tsx loaded');
+
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Welcome from './src/screens/Welcome';
+import { StyleSheet } from 'react-native';
+import { ColorLight } from './src/constant/colors/ColorLight';
+import { BackgroundMesh } from './src/components/BackgroundMesh';
+
+console.log(Welcome)
 function App() {
+
+
   return (
+
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <View>
-          <Text>
-            hello world
-          </Text>
 
-        </View>
 
-      </SafeAreaView>
-    </SafeAreaProvider>
+
+      <BackgroundMesh style={styles.meshContainer}>
+        <Welcome />
+
+      </BackgroundMesh>
+
+    </SafeAreaProvider >
+
   );
 }
 
-export default App;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  meshContainer: {
+    backgroundColor: ColorLight.bg
   },
-});
+})
+
+export default App;

@@ -7,11 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0236C4C46F6A49CCA4462F83 /* Geist-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2679B0148CD84B53BD808F3C /* Geist-Medium.ttf */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		22832BC54220BC698E51D6CB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		4ADA15AEC89643558F377076 /* Geist-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 99ED665F9C2D4C699CADA9F1 /* Geist-SemiBold.ttf */; };
 		68A01C73F6B520181291D49D /* libPods-walletTracker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C1EC89F6A9DC1CBCE21ECE /* libPods-walletTracker.a */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		9D56AE3777A046508D1F2397 /* Geist-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DC2094CE32874BE8A28794EB /* Geist-Bold.ttf */; };
+		E80E47FBF90F4CB2AB77698B /* Geist-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BEB43CEF8B8D4E419B366E39 /* Geist-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,11 +23,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = walletTracker/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = walletTracker/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = walletTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2679B0148CD84B53BD808F3C /* Geist-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Geist-Medium.ttf"; path = "../assets/fonts/Geist-Medium.ttf"; sourceTree = "<group>"; };
 		37C1EC89F6A9DC1CBCE21ECE /* libPods-walletTracker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-walletTracker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		396BAD6C21371AEDE5CE0E2E /* Pods-walletTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-walletTracker.release.xcconfig"; path = "Target Support Files/Pods-walletTracker/Pods-walletTracker.release.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = walletTracker/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = walletTracker/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8344BD1E11FF9EF8B2D73254 /* Pods-walletTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-walletTracker.debug.xcconfig"; path = "Target Support Files/Pods-walletTracker/Pods-walletTracker.debug.xcconfig"; sourceTree = "<group>"; };
+		99ED665F9C2D4C699CADA9F1 /* Geist-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Geist-SemiBold.ttf"; path = "../assets/fonts/Geist-SemiBold.ttf"; sourceTree = "<group>"; };
+		BEB43CEF8B8D4E419B366E39 /* Geist-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Geist-Regular.ttf"; path = "../assets/fonts/Geist-Regular.ttf"; sourceTree = "<group>"; };
+		DC2094CE32874BE8A28794EB /* Geist-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Geist-Bold.ttf"; path = "../assets/fonts/Geist-Bold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -75,6 +83,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				BC4D9F4145644395A4AB1702 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -96,6 +105,18 @@
 				396BAD6C21371AEDE5CE0E2E /* Pods-walletTracker.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		BC4D9F4145644395A4AB1702 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				BEB43CEF8B8D4E419B366E39 /* Geist-Regular.ttf */,
+				DC2094CE32874BE8A28794EB /* Geist-Bold.ttf */,
+				2679B0148CD84B53BD808F3C /* Geist-Medium.ttf */,
+				99ED665F9C2D4C699CADA9F1 /* Geist-SemiBold.ttf */,
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -161,6 +182,10 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				22832BC54220BC698E51D6CB /* PrivacyInfo.xcprivacy in Resources */,
+				E80E47FBF90F4CB2AB77698B /* Geist-Regular.ttf in Resources */,
+				9D56AE3777A046508D1F2397 /* Geist-Bold.ttf in Resources */,
+				0236C4C46F6A49CCA4462F83 /* Geist-Medium.ttf in Resources */,
+				4ADA15AEC89643558F377076 /* Geist-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
