@@ -62,7 +62,7 @@ export const chains = [
   { mono: 'PO', name: 'Polygon', value: '$2,410' },
 ] as const;
 
-/** Assets screen → Tokens tab. `delta` string already carries the sign glyph (▲ ▼ —). Status is never colour-only. */
+/** Assets screen → Tokens tab. Render the logo with <TokenIcon symbol={row.sym} /> and the chain badge with <ChainIcon chain={row.chain} />. `delta` string already carries the sign glyph (▲ ▼ —). Status is never colour-only. */
 export type AssetRow = {
   sym: string;
   name: string;
@@ -93,7 +93,7 @@ export const chainEmpty = (chain: string) => ({
 
 /** Activity screen */
 export type ActivityCategory = 'Swaps' | 'Transfers' | 'NFTs' | 'DeFi';
-export type ActivityKind = 'swap' | 'send' | 'receive' | 'mint' | 'stake';
+export type ActivityKind = 'swap' | 'send' | 'receive' | 'mint' | 'stake' | 'approve' | 'contract';
 export type ActivityItem = {
   day: string;
   category: ActivityCategory;
@@ -175,7 +175,7 @@ export const universe = [
 ] as const;
 export const universeStageCenter = { x: 195, y: 260 } as const;
 
-/** Connect-a-wallet list (default selection: WalletConnect). View-only. */
+/** Connect-a-wallet list (default selection: WalletConnect). View-only. `id` is also the WalletIcon key: <WalletIcon id={w.id} />. */
 export const connectWallets = [
   { id: 'metamask', mono: 'M', name: 'MetaMask', sub: 'Browser & mobile', tile: assetPalette.btc },
   { id: 'walletconnect', mono: 'W', name: 'WalletConnect', sub: '600+ wallets', tile: assetPalette.usdc },

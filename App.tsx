@@ -2,7 +2,7 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Welcome from './src/screens/Welcome';
 import ConnectWallet from './src/screens/connectWallet';
-import Home from './src/screens/Home';
+import Main from './src/screens/Main';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 // import { BackgroundMesh } from './src/components/BackgroundMesh';
@@ -29,7 +29,7 @@ function App() {
               name="Welcome"
               component={Welcome}
             />
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Main" component={Main} />
             <Stack.Screen
               name="ConnectWallet"
               component={ConnectWallet}

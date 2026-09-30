@@ -3,6 +3,8 @@ import { Pressable, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { styles } from "./style";
+import { WalletIcon } from "../../art/CryptoIcon";
+import type { WalletKey } from "../../art/cryptoSvgs";
 import { isAddress, resolveInput } from "../../services/ens";
 
 const WALLETS = [
@@ -31,7 +33,7 @@ export const ConnectWallet = ({ navigation }: any) => {
             const resolved = await resolveInput(input);
             navigation.reset({
                 index: 0,
-                routes: [{ name: "Home", params: { address: resolved, label: isAddress(input) ? undefined : input } }],
+                routes: [{ name: "Main", params: { address: resolved, label: isAddress(input) ? undefined : input } }],
             });
         } catch (e: any) {
             setError(e.message);
@@ -69,9 +71,7 @@ export const ConnectWallet = ({ navigation }: any) => {
                                 style={[styles.row, active && styles.rowSelected]}
                                 onPress={() => inputRef.current?.focus()}
                             >
-                                <View style={[styles.logo, { backgroundColor: w.color }]}>
-                                    <Text style={styles.logoText}>{w.letter}</Text>
-                                </View>
+                                <WalletIcon id={w.id as WalletKey} size={44} />
                                 <View style={styles.rowInfo}>
                                     <Text style={styles.walletName}>{w.name}</Text>
                                     <Text style={styles.walletDesc}>{w.desc}</Text>

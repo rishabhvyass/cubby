@@ -1,6 +1,6 @@
 # Cubby — asset index
 
-All art was extracted **byte-for-byte** from the design boards. 37 SVG files, each valid XML. Two ways to use them:
+All art was extracted **byte-for-byte** from the design boards. 38 Cubby SVGs plus 26 real crypto logos (see §7b), each valid XML. Two ways to use them:
 
 - **In React Native:** `import { Cubby, Sticker, Icon, CubbyMark, ChartShape, UniverseCardArt } from './src/art/Art'` (renders the SVG strings in `src/art/svgs.ts` with `react-native-svg`).
 - **As files:** `assets/svg/**` (web, docs, marketing, share cards). `assets/preview.html` / `assets/preview.png` show everything on one sheet. `assets/manifest.json` maps every file to a description.
@@ -129,6 +129,33 @@ Always put ink (`#0A0A0A`) text on these fills. Never use them as small text on 
 
 ---
 
+## 7b. Real crypto logos (`assets/svg/crypto/`) — tokens, chains, wallets
+
+The design's coloured monogram tiles are replaced by **real logos** (26 SVGs): ETH, USDC, USDT, BTC, WBTC, SOL, POL, ARB, OP, UNI, AAVE, LDO, 1INCH, DAI, LINK, GRAIL · Ethereum, Base, Arbitrum, Solana, Polygon, Optimism · MetaMask, WalletConnect, Coinbase, Phantom. Source: `@web3icons/core` (MIT); details, aliases and trademark note in `assets/svg/crypto/README.md`. Preview: `assets/crypto-preview.png`.
+
+```tsx
+<TokenIcon symbol="ETH" size={44} />             // circle badge: white (light) / #1A1A1A (dark) with the logo at 62%
+<TokenIcon symbol="WETH" />                      // aliases: WETH→ETH, WBTC, stETH→Lido, USDC.e, MATIC→POL ...
+<ChainIcon chain="Base" size={18} />             // small badge overlapping the token's bottom-right corner (-4px)
+<WalletIcon id="metamask" size={52} />           // rounded-square tile (radius 28%), not a circle
+<ProtocolIcon name="Uniswap" size={36} />
+<TokenIcon symbol="NFT" fallbackColor={assetPalette.nft} />   // unknown -> monogram tile (original design)
+```
+Where each is used:
+| Screen | Replaces | Component |
+|---|---|---|
+| Home "Where it sits" + Assets rows | coloured dot / monogram tile | `TokenIcon` (+ `ChainIcon` badge on Assets rows) |
+| Home "Across chains" | `ETH`, `BA`, `AR`… monograms | `ChainIcon` |
+| Assets chain chips | text only | optional small `ChainIcon` (RECOMMENDATION) |
+| Health approvals | token tile (USDT, WETH, ARB, USDC) | `TokenIcon`; spender (Uniswap, 1inch, Camelot) via `ProtocolIcon` |
+| Connect a wallet | `M W C P` monograms | `WalletIcon` |
+| Universe planets | plain coloured circles | **keep as coloured planets** (size/colour encode share); show the logo small inside the detail sheet (RECOMMENDATION) |
+| Activity rows | action icon tiles (swap/send/…) | **keep** (they show the action, not the asset) |
+
+Rules: never recolour a logo, never put text on it, keep the asset-palette colour only for planets, chart marks and monogram fallbacks.
+
+---
+
 ## 8. Fonts (not bundled — install from Google Fonts packages)
 
 | Role | Font | Where |
@@ -142,4 +169,4 @@ Always put ink (`#0A0A0A`) text on these fills. Never use them as small text on 
 ---
 
 ## 9. Not included / not designed
-Sticker slots 8–12 · locked-sticker style · app icon & splash · notification art · share-card template · per-token logos (the design uses coloured monogram tiles, e.g. `ETH`, `BA`, `AR`, `SO`, `PO`, `M`, `W`, `C`, `P`) · NFT artwork (comes from the NFT provider) · Ask/AI illustrations.
+Sticker slots 8–12 · locked-sticker style · app icon & splash · notification art · share-card template · logos beyond the 26 shipped (monogram fallback) · NFT artwork (comes from the NFT provider) · Ask/AI illustrations.

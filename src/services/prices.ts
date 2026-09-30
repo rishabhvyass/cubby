@@ -6,15 +6,32 @@ const get = async (path: string) => {
     return res.json();
 };
 
-export const getEthPrice = async (): Promise<number> =>
-    (await get("/simple/price?ids=ethereum&vs_currencies=usd")).ethereum.usd;
+export type Quote = { price: number; change24h: number | null };
 
-/** USD price per contract address (lowercased) on one CoinGecko platform. */
-export const getTokenPrices = async (platform: string, addresses: string[]): Promise<Record<string, number>> => {
+let lastEth: Quote | null = null;
+
+// CoinGecko's free tier rate-limits often, so fall back to Coinbase's public spot price (no 24h change).
+export const getEthPrice = async (): Promise<Quote> => {
+    try {
+        const d = (await get("/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true")).ethereum;
+        lastEth = { price: d.usd, change24h: d.usd_24h_change ?? null };
+    } catch {
+        try {
+            const res = await fetch("https://api.coinbase.com/v2/prices/ETH-USD/spot");
+            lastEth = { price: Number((await res.json()).data.amount), change24h: lastEth?.change24h ?? null };
+        } catch (e) {
+            if (!lastEth) throw e;
+        }
+    }
+    return lastEth as Quote;
+};
+
+/** USD quote per contract address (lowercased) on one CoinGecko platform. */
+export const getTokenPrices = async (platform: string, addresses: string[]): Promise<Record<string, Quote>> => {
     if (!addresses.length) return {};
-    const data = await get(`/simple/token_price/${platform}?contract_addresses=${addresses.join(",")}&vs_currencies=usd`);
-    const out: Record<string, number> = {};
-    for (const [addr, v] of Object.entries<any>(data)) out[addr.toLowerCase()] = v.usd;
+    const data = await get(`/simple/token_price/${platform}?contract_addresses=${addresses.join(",")}&vs_currencies=usd&include_24hr_change=true`);
+    const out: Record<string, Quote> = {};
+    for (const [addr, v] of Object.entries<any>(data)) out[addr.toLowerCase()] = { price: v.usd, change24h: v.usd_24h_change ?? null };
     return out;
 };
 
