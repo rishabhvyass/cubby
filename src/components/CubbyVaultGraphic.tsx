@@ -23,7 +23,7 @@ const FLOAT_DURATION = 6000;
 
 export default function CubbyVaultGraphic({
     style,
-    width = ORIGINAL_WIDTH,
+    width = 148,
 }: CubbyVaultGraphicProps) {
     const scaleRatio = width / ORIGINAL_WIDTH;
     const height = ORIGINAL_HEIGHT * scaleRatio;
@@ -198,10 +198,9 @@ export default function CubbyVaultGraphic({
 
 const styles = StyleSheet.create({
     container: {
-        position: 'absolute',
-        top:150,
-        left:100,
-        // borderWidth: 2,
-        // borderColor: "green",
+        position: 'relative',
+        top: 110,
+        left: 95,
+      
     },
 });

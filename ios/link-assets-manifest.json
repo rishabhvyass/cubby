@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/Doto_900Black.ttf",
+      "sha1": "cdc291c6401acb3f82862cf2220effd05598a62a"
+    },
+    {
       "path": "assets/fonts/Geist-Bold.ttf",
       "sha1": "626f875d7e53e5d9236ef7818d8744fb05246de6"
     },

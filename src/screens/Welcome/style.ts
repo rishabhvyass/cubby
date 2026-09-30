@@ -6,16 +6,21 @@ export const styles = StyleSheet.create({
 
     container: {
         flex: 1,
+        justifyContent: "space-between",
+        // borderWidth: 2,
+        // borderColor: "green",
+
+    },
+    meshContainer: {
         paddingHorizontal: 25,
-
-
+        backgroundColor: ColorLight.bg
     },
     logo: {
         // borderWidth: 2,
         // borderColor: "green",
         flexDirection: "row",
         alignItems: "center",
-        gap: 10
+        gap: 10,
     },
     logotext: {
         fontSize: 22,
@@ -114,16 +119,18 @@ export const styles = StyleSheet.create({
     lockicon: {
         alignItems: "center",
         justifyContent: "center",
-        // borderWidth: 2,
-        // borderColor: "green",
+
         flexDirection: "row",
     },
-    // cubbyBottom: {
-    //     width: 220,
-    //     height: 26,
-    //     borderRadius: 20,
-    //     backgroundColor: "rgba(10,10,10,0.16)",
-    // }
+    pixels: {
+        // borderWidth: 2,
+        // borderColor: "green",
+        height: 330,
+
+    },
+
+
+
 
 
 
