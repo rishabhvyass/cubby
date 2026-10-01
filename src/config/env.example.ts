@@ -6,3 +6,6 @@ export const QUICKNODE_URLS = {
     base: "https://YOUR-NAME.base-mainnet.quiknode.pro/YOUR-TOKEN/",
     arbitrum: "https://YOUR-NAME.arbitrum-mainnet.quiknode.pro/YOUR-TOKEN/",
 };
+
+// Free project ID from https://dashboard.reown.com (needed to connect wallet apps like MetaMask).
+export const REOWN_PROJECT_ID = "YOUR_REOWN_PROJECT_ID";

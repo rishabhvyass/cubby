@@ -5,6 +5,7 @@ import { CubbyMark, Icon, Sticker } from "../art/Art";
 import { usePortfolio } from "../state/portfolio";
 import { useTheme } from "../theme/useTheme";
 import { ThemeSheet } from "./ThemeSheet";
+import { AccountsSheet } from "./AccountsSheet";
 
 export const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
@@ -12,13 +13,21 @@ export const AccountHeader = () => {
     const { palette } = useTheme();
     const { address, label } = usePortfolio();
     const [themeOpen, setThemeOpen] = useState(false);
+    const [accountsOpen, setAccountsOpen] = useState(false);
     return (
         <View style={styles.header}>
-            <View style={styles.account}>
+            <PressableScale
+                scale={0.97}
+                onPress={() => setAccountsOpen(true)}
+                style={styles.account}
+                accessibilityRole="button"
+                accessibilityLabel={`Accounts. Current: ${label ?? short(address)}`}
+            >
                 <CubbyMark size={40} />
                 <Text style={[styles.name, { color: palette.text }]}>{label ?? short(address)}</Text>
                 <Icon name="chevron_down" size={16} color={palette.textSecondary} />
-            </View>
+            </PressableScale>
+            <AccountsSheet visible={accountsOpen} onClose={() => setAccountsOpen(false)} />
             <PressableScale
                 onPress={() => setThemeOpen(true)}
                 accessibilityRole="button"

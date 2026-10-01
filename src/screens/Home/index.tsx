@@ -2,15 +2,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import { PressableScale } from "../../components/PressableScale";
 import { ActivityIndicator, StatusBar, ScrollView, StyleProp, Text, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { createStyles } from "./style";
 import { splitDollars } from "../../motion/motion";
 import { useTheme } from "../../theme/useTheme";
-import { assetPalette, Palette } from "../../theme/tokens";
+import { assetPalette } from "../../theme/tokens";
 import { ChainIcon, TokenIcon } from "../../art/CryptoIcon";
-import { Sticker, UniverseCardArt } from "../../art/Art";
+import { CubbyForScore, Icon, Sticker, UniverseCardArt } from "../../art/Art";
 import { usePortfolio } from "../../state/portfolio";
 import EmptyWallet from "./EmptyWallet";
+import { useHealth } from "../../state/health";
+import { Chart, buildPaths } from "../../components/PriceChart";
+import { isFresh, key, peek, TTL, writeCache } from "../../services/cache";
+import { STICKER_SLOTS } from "../../services/stickers";
 import { SlidingSegmented } from "../../components/SlidingSelector";
 import { AccountHeader } from "../../components/AccountHeader";
 import { History, loadHistory, RangeKey } from "../../services/history";
@@ -22,56 +25,35 @@ const OTHER_COLOR = assetPalette.defi;
 const usd = (n: number, digits = 0) =>
     "$" + n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
-const CHART_W = 350;
-const CHART_H = 150;
-
-const buildPaths = (data: number[]) => {
-    const min = Math.min(...data);
-    const max = Math.max(...data);
-    const pts = data.map((v, i) => ({
-        x: (i / (data.length - 1)) * (CHART_W - 10),
-        y: 8 + (1 - (v - min) / (max - min || 1)) * (CHART_H - 20),
-    }));
-    const line = pts.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-    const area = `${line} L${pts[pts.length - 1].x},${CHART_H} L0,${CHART_H} Z`;
-    return { line, area, last: pts[pts.length - 1] };
-};
-
 const RiseView = ({ style, children }: { delay?: number; style?: StyleProp<ViewStyle>; children: React.ReactNode }) => (
     <View style={style}>{children}</View>
 );
 
-const Chart = ({ line, area, last, p }: { line: string; area: string; last: { x: number; y: number }; p: Palette }) => (
-    <Svg width="100%" height={CHART_H} viewBox={`0 0 ${CHART_W} ${CHART_H}`}>
-        <Defs>
-            <LinearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={p.accent} stopOpacity={0.55} />
-                <Stop offset="1" stopColor={p.accent} stopOpacity={0.05} />
-            </LinearGradient>
-        </Defs>
-        <Path d={area} fill="url(#fill)" />
-        <Path d={line} stroke={p.text} strokeWidth={2.5} fill="none" strokeLinejoin="round" strokeLinecap="round" />
-        <Circle cx={last.x} cy={last.y} r={5} fill={p.accent} stroke={p.text} strokeWidth={2} />
-    </Svg>
-);
-
-const Home = ({ onOpenUniverse, onWatchAddress }: { onOpenUniverse: () => void; onWatchAddress: () => void }) => {
+const Home = ({ onOpenUniverse, onOpenSwap, onOpenRecap, onOpenHealth, onOpenStickers, onWatchAddress }: {
+    onOpenUniverse: () => void; onOpenSwap: () => void; onOpenRecap: () => void; onOpenHealth: () => void; onOpenStickers: () => void; onWatchAddress: () => void;
+}) => {
     const insets = useSafeAreaInsets();
     const { scheme, palette } = useTheme();
     const styles = useMemo(() => createStyles(palette), [palette]);
-    const { portfolio, error } = usePortfolio();
+    const { portfolio, error, address } = usePortfolio();
+    const { health, stickers, recap } = useHealth();
+    const earned = stickers.filter(x => x.earned).length;
     const [range, setRange] = useState<RangeKey>("1W");
     const [history, setHistory] = useState<History | null>(null);
 
+    // Chart history is cached per account and range, so switching accounts or ranges shows it instantly.
     useEffect(() => {
         if (!portfolio?.holdings.length) return;
+        const hk = key.history(address, range);
+        const cached = peek<History>(hk);
+        setHistory(cached?.value ?? null);
+        if (isFresh(cached, TTL.history)) return;
         let cancelled = false;
-        setHistory(null);
         loadHistory(portfolio.holdings, range)
-            .then(h => !cancelled && setHistory(h))
+            .then(h => { writeCache(hk, h); if (!cancelled) setHistory(h); })
             .catch(e => console.warn("[history]", e));
         return () => { cancelled = true; };
-    }, [portfolio, range]);
+    }, [portfolio, range, address]);
 
     const { line, area, last } = useMemo(() => buildPaths(history?.points ?? [0, 0]), [history]);
 
@@ -130,6 +112,11 @@ const Home = ({ onOpenUniverse, onWatchAddress }: { onOpenUniverse: () => void; 
                         <Text style={styles.deltaText}>{history ? `${up ? "▲" : "▼"} ${usd(Math.abs(history.change), 2)} · ${Math.abs(history.changePct).toFixed(2)}%` : "…"}</Text>
                     </View>
                     <Text style={styles.deltaWeek}>{rangeLabel}</Text>
+                    <View style={{ flex: 1 }} />
+                    <PressableScale onPress={onOpenSwap} scale={0.94} style={styles.swapBtn} accessibilityRole="button" accessibilityLabel="Swap tokens">
+                        <Icon name="swap" size={16} color={palette.onAccent} />
+                        <Text style={styles.swapText}>Swap</Text>
+                    </PressableScale>
                 </View>
 
                 <View style={styles.chart}>
@@ -173,6 +160,11 @@ const Home = ({ onOpenUniverse, onWatchAddress }: { onOpenUniverse: () => void; 
                             <Text key={g.symbol} style={styles.storyLegendText}>{g.symbol} +{usd(g.delta)}</Text>
                         ))}
                     </View>
+                    {recap && (
+                        <PressableScale onPress={onOpenRecap} accessibilityRole="button">
+                            <Text style={styles.storyLink}>Watch your recap →</Text>
+                        </PressableScale>
+                    )}
                 </RiseView>
 
                 <View style={styles.sectionRow}>
@@ -193,11 +185,36 @@ const Home = ({ onOpenUniverse, onWatchAddress }: { onOpenUniverse: () => void; 
                     </RiseView>
                 ))}
 
+                {health && (
+                    <PressableScale style={[styles.card, styles.cubbyCard]} onPress={onOpenHealth} accessibilityRole="button" accessibilityLabel={`Cubby is at level ${health.level}. Health ${health.score}`}>
+                        <View style={styles.cubbyIcon}><CubbyForScore score={health.score} height={52} /></View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.cubbyTitle}>Cubby is at level {health.level}</Text>
+                            <Text style={styles.cubbyMeta}>
+                                Health {health.score} · {health.score >= 90 ? "top level reached" : `${90 - health.score} points to Level 4`}
+                            </Text>
+                            <View style={styles.dots}>
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                    <View key={i} style={[styles.dot, i >= Math.round(health.score / 10) && { opacity: 0.2 }]} />
+                                ))}
+                                <Text style={styles.dotsText}>{health.score}/100</Text>
+                            </View>
+                        </View>
+                    </PressableScale>
+                )}
+
                 <RiseView delay={280} style={styles.twoCol}>
                     <PressableScale style={[styles.card, styles.tile]} onPress={onOpenUniverse} accessibilityRole="button" accessibilityLabel="Universe. Fly through your assets">
                         <View style={styles.tileArt}><UniverseCardArt width={72} /></View>
                         <Text style={styles.tileTitle}>Universe</Text>
                         <Text style={styles.tileDesc}>Fly through your assets</Text>
+                    </PressableScale>
+                    <PressableScale style={[styles.card, styles.tile]} onPress={onOpenStickers} accessibilityRole="button" accessibilityLabel={`Sticker book, ${earned} of ${STICKER_SLOTS} collected`}>
+                        <View style={[styles.tileArt, { flexDirection: "row", gap: 4 }]}>
+                            {stickers.filter(x => x.earned).slice(0, 2).map(x => <Sticker key={x.name} name={x.name} height={40} />)}
+                        </View>
+                        <Text style={styles.tileTitle}>Sticker book</Text>
+                        <Text style={styles.tileDesc}>{earned} of {STICKER_SLOTS} collected</Text>
                     </PressableScale>
                 </RiseView>
 

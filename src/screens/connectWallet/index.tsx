@@ -6,6 +6,9 @@ import { styles } from "./style";
 import { WalletIcon } from "../../art/CryptoIcon";
 import type { WalletKey } from "../../art/cryptoSvgs";
 import { isAddress, resolveInput } from "../../services/ens";
+import { useAccounts } from "../../state/accounts";
+import { useWallet } from "../../state/wallet";
+import { navigationRef } from "../../navigation";
 
 const WALLETS = [
     { id: "metamask", name: "MetaMask", desc: "Browser & mobile", letter: "M", color: "#F6C85F" },
@@ -16,6 +19,8 @@ const WALLETS = [
 
 export const ConnectWallet = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
+    const { accounts, addAccount } = useAccounts();
+    const wallet = useWallet();
     const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
     const [address, setAddress] = useState("");
     const [loading, setLoading] = useState(false);
@@ -23,7 +28,24 @@ export const ConnectWallet = ({ navigation }: any) => {
 
     const canContinue = address.trim().length > 0 && !loading;
 
-    // View-only: wallet rows just jump to the address field; we never hold keys.
+    // Wallet rows open the wallet picker (Reown). Cubby never sees keys: the wallet app signs.
+    // The picker is a native modal and iOS can't present one on top of this sheet, so close the sheet first.
+    const connectWalletApp = () => {
+        if (!wallet.available) {
+            setError("Add your Reown project ID in src/config/env.ts to connect wallet apps.");
+            return;
+        }
+        setError(null);
+        navigation.goBack();
+        setTimeout(() => {
+            wallet.connect((address, name) => {
+                addAccount({ address, label: undefined, kind: "wallet", connector: name });
+                navigationRef.current?.reset({ index: 0, routes: [{ name: "Main" }] });
+            });
+        }, 400);
+    };
+
+    // Watch-only: paste an address or ENS name.
     const onContinue = async () => {
         if (!canContinue) return;
         setLoading(true);
@@ -31,10 +53,8 @@ export const ConnectWallet = ({ navigation }: any) => {
         try {
             const input = address.trim();
             const resolved = await resolveInput(input);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "Main", params: { address: resolved, label: isAddress(input) ? undefined : input } }],
-            });
+            addAccount({ address: resolved, label: isAddress(input) ? undefined : input, kind: "watch" });
+            navigation.reset({ index: 0, routes: [{ name: "Main" }] });
         } catch (e: any) {
             setError(e.message);
             setLoading(false);
@@ -50,7 +70,7 @@ export const ConnectWallet = ({ navigation }: any) => {
                 <View style={styles.handle} />
 
                 <View style={styles.header}>
-                    <Text style={styles.title}>Connect a wallet</Text>
+                    <Text style={styles.title}>{accounts.length ? "Add an account" : "Connect a wallet"}</Text>
                     <Pressable
                         style={styles.closeBtn}
                         onPress={() => navigation.goBack()}
@@ -60,7 +80,7 @@ export const ConnectWallet = ({ navigation }: any) => {
                         <Text style={styles.closeText}>✕</Text>
                     </Pressable>
                 </View>
-                <Text style={styles.subtitle}>View-only. Disconnect whenever you like.</Text>
+                <Text style={styles.subtitle}>Connect a wallet app to swap, or just watch an address.</Text>
 
                 <View style={styles.list}>
                     {WALLETS.map(w => {
@@ -69,7 +89,7 @@ export const ConnectWallet = ({ navigation }: any) => {
                             <Pressable
                                 key={w.id}
                                 style={[styles.row, active && styles.rowSelected]}
-                                onPress={() => inputRef.current?.focus()}
+                                onPress={connectWalletApp}
                             >
                                 <WalletIcon id={w.id as WalletKey} size={44} />
                                 <View style={styles.rowInfo}>

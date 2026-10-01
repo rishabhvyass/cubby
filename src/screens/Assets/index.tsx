@@ -3,6 +3,8 @@ import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, View } from "r
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChainIcon, TokenIcon } from "../../art/CryptoIcon";
 import { SlidingChips, SlidingSegmented } from "../../components/SlidingSelector";
+import { PressableScale } from "../../components/PressableScale";
+import type { Holding } from "../../services/portfolio";
 import { AccountHeader } from "../../components/AccountHeader";
 import { CHAINS } from "../../config/chains";
 import { fmtAmount, fmtDelta, usd } from "../../services/format";
@@ -13,7 +15,7 @@ import { useTheme } from "../../theme/useTheme";
 const DUST_USD = 1;
 const KINDS = ["Tokens", "NFTs", "DeFi"] as const;
 
-const Assets = () => {
+const Assets = ({ onOpenToken }: { onOpenToken: (h: Holding) => void }) => {
     const insets = useSafeAreaInsets();
     const { scheme, palette } = useTheme();
     const s = useMemo(() => createStyles(palette), [palette]);
@@ -82,7 +84,14 @@ const Assets = () => {
                         const d = fmtDelta(h.change24h);
                         const chainInfo = CHAINS.find(c => c.id === h.chain)!;
                         return (
-                            <View key={`${h.chain}-${h.address ?? "native"}`} style={[s.row, i === rows.length - 1 && { borderBottomWidth: 0 }]}>
+                            <PressableScale
+                                key={`${h.chain}-${h.address ?? "native"}`}
+                                scale={0.98}
+                                onPress={() => onOpenToken(h)}
+                                accessibilityRole="button"
+                                accessibilityLabel={`${h.name} on ${chainInfo.name}. Open details`}
+                                style={[s.row, i === rows.length - 1 && { borderBottomWidth: 0 }]}
+                            >
                                 <View style={s.iconWrap}>
                                     <TokenIcon symbol={h.symbol} size={46} dark={scheme === "dark"} />
                                     <View style={s.chainBadge}><ChainIcon chain={chainInfo.name} size={20} dark={scheme === "dark"} /></View>
@@ -97,7 +106,7 @@ const Assets = () => {
                                         <Text style={[s.deltaText, s[`${d.tone}Text` as const]]}>{d.text}</Text>
                                     </View>
                                 </View>
-                            </View>
+                            </PressableScale>
                         );
                     })}
 

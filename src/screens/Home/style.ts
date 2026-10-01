@@ -30,6 +30,8 @@ export const createStyles = (p: Palette) => StyleSheet.create({
     deltaRow: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 6 },
     deltaPill: { backgroundColor: p.positiveTint, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 },
     deltaText: { fontSize: 14, fontWeight: "700", color: p.positive },
+    swapBtn: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: p.accent, borderWidth: 2, borderColor: p.buttonEdge, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7 },
+    swapText: { fontSize: 14, fontWeight: "700", color: p.onAccent },
     deltaWeek: { fontSize: 14, color: p.textSecondary },
 
     chart: { marginTop: 18 },

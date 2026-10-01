@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "../../art/Art";
 import { SlidingChips } from "../../components/SlidingSelector";
 import { AccountHeader } from "../../components/AccountHeader";
-import { activityFilters, ActivityItem, loadActivity } from "../../services/activity";
-import { usePortfolio } from "../../state/portfolio";
+import { activityFilters, ActivityItem } from "../../services/activity";
+import { useActivity } from "../../state/activity";
+import { useHealth } from "../../state/health";
+import { PressableScale } from "../../components/PressableScale";
+import { Sticker } from "../../art/Art";
 import { useRow } from "../../motion/motion";
 import { Palette, radius } from "../../theme/tokens";
 import { useTheme } from "../../theme/useTheme";
@@ -42,22 +45,15 @@ const Row = ({ item, index, last, p, s }: { item: ActivityItem; index: number; l
     );
 };
 
-const Activity = () => {
+const Activity = ({ onOpenRecap }: { onOpenRecap: () => void }) => {
     const insets = useSafeAreaInsets();
     const { palette: p } = useTheme();
     const s = useMemo(() => createStyles(p), [p]);
-    const { address } = usePortfolio();
-    const [items, setItems] = useState<ActivityItem[] | null>(null);
-    const [errors, setErrors] = useState<string[]>([]);
+    const { data } = useActivity();
+    const { recap } = useHealth();
+    const items: ActivityItem[] | null = data ? data.items.slice(0, 60) : null;
+    const errors = data?.errors ?? [];
     const [filter, setFilter] = useState<(typeof activityFilters)[number]>("All");
-
-    useEffect(() => {
-        let cancelled = false;
-        loadActivity(address)
-            .then(r => { if (!cancelled) { setItems(r.items); setErrors(r.errors); } })
-            .catch(e => { if (!cancelled) { setItems([]); setErrors([String(e.message ?? e)]); } });
-        return () => { cancelled = true; };
-    }, [address]);
 
     const shown = (items ?? []).filter(a => filter === "All" || a.category === filter);
     const days = [...new Set(shown.map(i => i.day))];
@@ -67,6 +63,20 @@ const Activity = () => {
         <ScrollView contentContainerStyle={[s.scroll, { paddingTop: insets.top + 8 }]} showsVerticalScrollIndicator={false}>
             <AccountHeader />
             <Text style={s.title}>Activity</Text>
+
+            {recap && (
+                <PressableScale style={s.recap} onPress={onOpenRecap} accessibilityRole="button" accessibilityLabel="Watch your recap">
+                    <View style={{ flex: 1 }}>
+                        <Text style={s.recapKicker}>Your last 30 days, in 3 cards</Text>
+                        <Text style={s.recapTitle}>Your recap</Text>
+                        <View style={s.watch}>
+                            <View style={s.play}><Icon name="play" size={16} color={p.accent} /></View>
+                            <Text style={s.watchText}>Watch recap</Text>
+                        </View>
+                    </View>
+                    <View style={s.stickerA}><Sticker name="hello" height={64} /></View>
+                </PressableScale>
+            )}
 
             <SlidingChips
                 options={activityFilters.map(f => ({ id: f, label: f }))}
