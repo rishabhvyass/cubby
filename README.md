@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="docs/cubby-launch.jpg" alt="Cubby on iPhone" width="860" />
+<a href="docs/cubby-launch.mp4"><img src="docs/cubby-launch.jpg" alt="Cubby launch video: click to watch" width="860" /></a>
+
+▶ **[Watch the 21-second launch video](docs/cubby-launch.mp4)**
 
 # 🧊 Cubby
 
@@ -109,7 +111,7 @@ React Native 0.87 · TypeScript · React Navigation (native stack) · **Reanimat
 ├── assets/
 │   ├── fonts/                   # Geist, Doto
 │   └── kit/svg/                 # Source SVG art
-├── docs/                        # README images
+├── docs/                        # README poster + launch video
 ├── ios/ android/               # Native projects
 └── __tests__/
 ```
