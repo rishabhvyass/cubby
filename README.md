@@ -1,8 +1,10 @@
 <div align="center">
 
-<a href="docs/cubby-launch.mp4"><img src="docs/cubby-launch.jpg" alt="Cubby launch video: click to watch" width="860" /></a>
+<!-- <a href="docs/cubby-launch.mp4"><img src="docs/cubby-launch.jpg" alt="Cubby launch video: click to watch" width="860" /></a> -->
 
-▶ **[Watch the 21-second launch video](docs/cubby-launch.mp4)**
+
+https://github.com/user-attachments/assets/61d8a89b-028e-4ef3-9646-49b022cc3ed6
+
 
 # 🧊 Cubby
 
