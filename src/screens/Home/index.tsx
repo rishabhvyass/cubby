@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, StatusBar, Pressable, ScrollView, StyleProp, Text, View, ViewStyle } from "react-native";
+import { PressableScale } from "../../components/PressableScale";
+import { ActivityIndicator, StatusBar, ScrollView, StyleProp, Text, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Defs, LinearGradient, Stop } from "react-native-svg";
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { createStyles } from "./style";
+import { splitDollars } from "../../motion/motion";
 import { useTheme } from "../../theme/useTheme";
 import { assetPalette, Palette } from "../../theme/tokens";
-import Animated, { useAnimatedProps, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
-import { AnimatedCircle, AnimatedPath, easeOut, splitDollars, useCountUp, usePulseProps, useDrawProps, useRise } from "../../motion/motion";
 import { ChainIcon, TokenIcon } from "../../art/CryptoIcon";
-import { CubbyForScore, Sticker, UniverseCardArt } from "../../art/Art";
+import { Sticker, UniverseCardArt } from "../../art/Art";
 import { usePortfolio } from "../../state/portfolio";
 import EmptyWallet from "./EmptyWallet";
+import { SlidingSegmented } from "../../components/SlidingSelector";
 import { AccountHeader } from "../../components/AccountHeader";
 import { History, loadHistory, RangeKey } from "../../services/history";
 
@@ -36,46 +37,25 @@ const buildPaths = (data: number[]) => {
     return { line, area, last: pts[pts.length - 1] };
 };
 
-const DASH = 3000; // longer than any path we generate, so the draw reveals it all
+const RiseView = ({ style, children }: { delay?: number; style?: StyleProp<ViewStyle>; children: React.ReactNode }) => (
+    <View style={style}>{children}</View>
+);
 
-const RiseView = ({ delay = 0, style, children }: { delay?: number; style?: StyleProp<ViewStyle>; children: React.ReactNode }) => {
-    const rise = useRise(delay);
-    return <Animated.View style={[style, rise]}>{children}</Animated.View>;
-};
+const Chart = ({ line, area, last, p }: { line: string; area: string; last: { x: number; y: number }; p: Palette }) => (
+    <Svg width="100%" height={CHART_H} viewBox={`0 0 ${CHART_W} ${CHART_H}`}>
+        <Defs>
+            <LinearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={p.accent} stopOpacity={0.55} />
+                <Stop offset="1" stopColor={p.accent} stopOpacity={0.05} />
+            </LinearGradient>
+        </Defs>
+        <Path d={area} fill="url(#fill)" />
+        <Path d={line} stroke={p.text} strokeWidth={2.5} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+        <Circle cx={last.x} cy={last.y} r={5} fill={p.accent} stroke={p.text} strokeWidth={2} />
+    </Svg>
+);
 
-// Line draws, then area fades in (0.7s), end dot fades in (1.4s), ring pulses from 1.6s.
-// Remounted (via key) whenever the data or range changes so the choreography replays.
-const Chart = ({ line, area, last, p }: { line: string; area: string; last: { x: number; y: number }; p: Palette }) => {
-    const areaOp = useSharedValue(0);
-    const dotOp = useSharedValue(0);
-    useEffect(() => {
-        areaOp.value = withDelay(700, withTiming(1, { duration: 900, easing: easeOut }));
-        dotOp.value = withDelay(1400, withTiming(1, { duration: 900, easing: easeOut }));
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-    const areaProps = useAnimatedProps(() => ({ opacity: areaOp.value }));
-    const dotProps = useAnimatedProps(() => ({ opacity: dotOp.value }));
-    const drawProps = useDrawProps(100, 1500, DASH);
-    const pulseProps = usePulseProps();
-    return (
-        <Svg width="100%" height={CHART_H} viewBox={`0 0 ${CHART_W} ${CHART_H}`}>
-            <Defs>
-                <LinearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                    <Stop offset="0" stopColor={p.accent} stopOpacity={0.55} />
-                    <Stop offset="1" stopColor={p.accent} stopOpacity={0.05} />
-                </LinearGradient>
-            </Defs>
-            <AnimatedPath d={area} fill="url(#fill)" animatedProps={areaProps} />
-            <AnimatedPath
-                d={line} stroke={p.text} strokeWidth={2.5} fill="none" strokeLinejoin="round" strokeLinecap="round"
-                strokeDasharray={DASH} animatedProps={drawProps}
-            />
-            <AnimatedCircle cx={last.x} cy={last.y} r={5} fill={p.accent} stroke={p.text} strokeWidth={2} animatedProps={dotProps} />
-            <AnimatedCircle cx={last.x} cy={last.y} fill="none" stroke={p.text} strokeWidth={1.5} animatedProps={pulseProps} />
-        </Svg>
-    );
-};
-
-const Home = ({ onOpenUniverse, onOpenRecap, onWatchAddress }: { onOpenUniverse: () => void; onOpenRecap: () => void; onWatchAddress: () => void }) => {
+const Home = ({ onOpenUniverse, onWatchAddress }: { onOpenUniverse: () => void; onWatchAddress: () => void }) => {
     const insets = useSafeAreaInsets();
     const { scheme, palette } = useTheme();
     const styles = useMemo(() => createStyles(palette), [palette]);
@@ -113,8 +93,7 @@ const Home = ({ onOpenUniverse, onOpenRecap, onWatchAddress }: { onOpenUniverse:
     }, [portfolio]);
 
     const total = portfolio?.total ?? 0;
-    const counted = useCountUp(total);
-    const { dollars, cents } = splitDollars(counted);
+    const { dollars, cents } = splitDollars(total);
     const up = (history?.change ?? 0) >= 0;
     const rangeLabel = range === "1D" ? "today" : range === "ALL" ? "all time" : `over ${range}`;
     const gains = (history?.contributions ?? []).filter(c => c.delta > 0).slice(0, 3);
@@ -154,25 +133,27 @@ const Home = ({ onOpenUniverse, onOpenRecap, onWatchAddress }: { onOpenUniverse:
                 </View>
 
                 <View style={styles.chart}>
-                    <Chart key={`${range}-${history?.points.length ?? 0}`} line={line} area={area} last={last} p={palette} />
+                    <Chart line={line} area={area} last={last} p={palette} />
                 </View>
 
-                <RiseView delay={60} style={styles.ranges}>
-                    {RANGES.map(r => (
-                        <Pressable
-                            key={r}
-                            style={[styles.range, r === range && styles.rangeActive]}
-                            onPress={() => setRange(r)}
-                        >
-                            <Text style={[styles.rangeText, r === range && styles.rangeTextActive]}>{r}</Text>
-                        </Pressable>
-                    ))}
-                </RiseView>
+                <SlidingSegmented
+                    options={RANGES}
+                    value={range}
+                    onChange={r => setRange(r as RangeKey)}
+                    trackColor={palette.surface2}
+                    pillColor={palette.text}
+                    activeColor={palette.bg}
+                    inactiveColor={palette.textSecondary}
+                    height={40}
+                    radius={20}
+                    style={{ marginTop: 20 }}
+                    textStyle={{ fontSize: 14 }}
+                />
 
                 <RiseView delay={120} style={styles.story}>
                     <View style={styles.storyTag}>
                         <Sticker name="hello" height={22} />
-                        <Text style={styles.storyTagText}>This week's story</Text>
+                        <Text style={styles.storyTagText}>{range === "1W" ? "This week's story" : range === "1D" ? "Today's story" : range === "ALL" ? "All-time story" : `Your ${range} story`}</Text>
                     </View>
                     <Text style={styles.storyTitle}>
                         {lead && lead.delta > 0 ? `${lead.symbol} carried your ${range === "1W" ? "week" : "run"}.` : "Quiet stretch."}
@@ -192,9 +173,6 @@ const Home = ({ onOpenUniverse, onOpenRecap, onWatchAddress }: { onOpenUniverse:
                             <Text key={g.symbol} style={styles.storyLegendText}>{g.symbol} +{usd(g.delta)}</Text>
                         ))}
                     </View>
-                    <Pressable onPress={onOpenRecap} accessibilityRole="button">
-                        <Text style={styles.storyLink}>Watch your September recap →</Text>
-                    </Pressable>
                 </RiseView>
 
                 <View style={styles.sectionRow}>
@@ -215,32 +193,12 @@ const Home = ({ onOpenUniverse, onOpenRecap, onWatchAddress }: { onOpenUniverse:
                     </RiseView>
                 ))}
 
-                <RiseView delay={240} style={[styles.card, styles.cubbyCard]}>
-                    <View style={styles.cubbyIcon}><CubbyForScore score={82} height={52} /></View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.cubbyTitle}>Cubby is at level 3</Text>
-                        <Text style={styles.cubbyMeta}>Health 82 · 1 quick fix to Level 4</Text>
-                        <View style={styles.dots}>
-                            {Array.from({ length: 12 }).map((_, i) => <View key={i} style={styles.dot} />)}
-                            <Text style={styles.dotsText}>12 wks</Text>
-                        </View>
-                    </View>
-                </RiseView>
-
                 <RiseView delay={280} style={styles.twoCol}>
-                    <Pressable style={[styles.card, styles.tile]} onPress={onOpenUniverse} accessibilityRole="button" accessibilityLabel="Universe. Fly through your assets">
+                    <PressableScale style={[styles.card, styles.tile]} onPress={onOpenUniverse} accessibilityRole="button" accessibilityLabel="Universe. Fly through your assets">
                         <View style={styles.tileArt}><UniverseCardArt width={72} /></View>
                         <Text style={styles.tileTitle}>Universe</Text>
                         <Text style={styles.tileDesc}>Fly through your assets</Text>
-                    </Pressable>
-                    <View style={[styles.card, styles.tile]}>
-                        <View style={[styles.tileArt, { flexDirection: "row", gap: 4 }]}>
-                            <Sticker name="clean_sweep" height={40} />
-                            <Sticker name="backed_up" height={40} />
-                        </View>
-                        <Text style={styles.tileTitle}>Sticker book</Text>
-                        <Text style={styles.tileDesc}>5 of 12 collected</Text>
-                    </View>
+                    </PressableScale>
                 </RiseView>
 
                 <View style={styles.sectionRow}>

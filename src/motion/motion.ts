@@ -22,6 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Circle, Path } from 'react-native-svg';
 import { motion } from '../theme/tokens';
+import { springs } from './springs';
 
 type Bezier = readonly [number, number, number, number];
 const bez = (b: Bezier) => Easing.bezier(b[0], b[1], b[2], b[3]);
@@ -175,17 +176,19 @@ export function usePressSink(distance = 3) {
   const p = useSharedValue(0);
   const style = useAnimatedStyle(() => ({ transform: [{ translateY: p.value * distance }] }));
   const shadowStyle = useAnimatedStyle(() => ({ shadowOffset: { width: 0, height: (1 - p.value) * distance } }));
+  // Spring (not a 120ms tween): reverses mid-press without a jump, keeps velocity. Feels like a physical key.
   return {
     style,
     shadowStyle,
-    onPressIn: () => { p.value = withTiming(1, { duration: motion.press, easing: easeOut }); },
-    onPressOut: () => { p.value = withTiming(0, { duration: motion.press, easing: easeOut }); },
+    onPressIn: () => { p.value = withSpring(1, springs.press); },
+    onPressOut: () => { p.value = withSpring(0, springs.press); },
   };
 }
 
 /** Spring for physical things: sticker pop settle, trays, Universe zoom. damping 18, stiffness 200. */
 export const physicalSpring = (to: number) => withSpring(to, motion.spring);
 
+// NOTE: prefer <AnimatedDollars/> (src/motion/AnimatedNumber.tsx): same curve, runs on the UI thread. This hook re-renders React every frame.
 // Net-worth count-up: 0 → target over 1300ms with easeOutQuart (1 - (1-k)^4). Runs on every open of Home.
 // Returns the current number; format with toLocaleString + tabular numerals. Reduce motion: returns target at once.
 export function useCountUp(target: number, durationMs: number = motion.countUp) {

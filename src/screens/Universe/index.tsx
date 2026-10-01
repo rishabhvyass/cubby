@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 import { Icon } from "../../art/Art";
-import { easeOut, useFloat, useRise } from "../../motion/motion";
+import { useFloat, useRise } from "../../motion/motion";
+import { springs } from "../../motion/springs";
+import { PressableScale } from "../../components/PressableScale";
 import { AssetGroup, groupBySymbol } from "../../services/assets";
 import { fmtAmount, fmtDelta, usd, usdCompact } from "../../services/format";
 import { usePortfolio } from "../../state/portfolio";
@@ -59,7 +61,8 @@ const PlanetView = ({ planet, index, focus, palette, onPress }: {
             style={[{ position: "absolute", left: STAGE.cx + planet.x - planet.d / 2, top: STAGE.cy + planet.y - planet.d / 2, width: planet.d, height: planet.d }, fade]}
         >
             <Animated.View style={float}>
-                <Pressable
+                <PressableScale
+                    scale={0.94}
                     onPress={onPress}
                     accessibilityRole="button"
                     accessibilityLabel={`Fly into ${planet.name}, ${usdCompact(planet.value)}`}
@@ -70,7 +73,7 @@ const PlanetView = ({ planet, index, focus, palette, onPress }: {
                         <Text style={[styles.planetName, { fontSize: planet.d > 80 ? 17 : 14 }]} numberOfLines={1}>{planet.symbol}</Text>
                         <Text style={[styles.planetValue, { fontSize: planet.d > 80 ? 16 : 13 }]}>{usdCompact(planet.value)}</Text>
                     </View>
-                </Pressable>
+                </PressableScale>
             </Animated.View>
         </Animated.View>
     );
@@ -93,10 +96,10 @@ const Universe = ({ onBack, onOpenAssets }: { onBack: () => void; onOpenAssets: 
     const sc = useSharedValue(1);
     const dim = useSharedValue(1);
     useEffect(() => {
-        const cfg = { duration: 900, easing: easeOut };
-        tx.value = withTiming(focus ? -focus.x * ZOOM : 0, cfg);
-        ty.value = withTiming(focus ? -focus.y * ZOOM - 110 : 0, cfg);
-        sc.value = withTiming(focus ? ZOOM : 1, cfg);
+        // Springs re-target from the live value, so tapping Back mid-zoom reverses smoothly.
+        tx.value = withSpring(focus ? -focus.x * ZOOM : 0, springs.gentle);
+        ty.value = withSpring(focus ? -focus.y * ZOOM - 110 : 0, springs.gentle);
+        sc.value = withSpring(focus ? ZOOM : 1, springs.gentle);
         dim.value = withTiming(focus ? 0.06 : 1, { duration: 500 });
     }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
     const stageStyle = useAnimatedStyle(() => ({ transform: [{ translateX: tx.value }, { translateY: ty.value }, { scale: sc.value }] }));

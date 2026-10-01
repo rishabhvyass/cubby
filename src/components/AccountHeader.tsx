@@ -1,5 +1,6 @@
+import { PressableScale } from "./PressableScale";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { CubbyMark, Icon, Sticker } from "../art/Art";
 import { usePortfolio } from "../state/portfolio";
 import { useTheme } from "../theme/useTheme";
@@ -18,14 +19,14 @@ export const AccountHeader = () => {
                 <Text style={[styles.name, { color: palette.text }]}>{label ?? short(address)}</Text>
                 <Icon name="chevron_down" size={16} color={palette.textSecondary} />
             </View>
-            <Pressable
+            <PressableScale
                 onPress={() => setThemeOpen(true)}
                 accessibilityRole="button"
                 accessibilityLabel="Appearance"
                 style={[styles.badge, { borderColor: palette.accent, backgroundColor: palette.surface }]}
             >
                 <Sticker name="hello" height={30} />
-            </Pressable>
+            </PressableScale>
             <ThemeSheet visible={themeOpen} onClose={() => setThemeOpen(false)} />
         </View>
     );

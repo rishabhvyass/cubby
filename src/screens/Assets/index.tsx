@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChainIcon, TokenIcon } from "../../art/CryptoIcon";
+import { SlidingChips, SlidingSegmented } from "../../components/SlidingSelector";
 import { AccountHeader } from "../../components/AccountHeader";
 import { CHAINS } from "../../config/chains";
 import { fmtAmount, fmtDelta, usd } from "../../services/format";
@@ -41,13 +42,17 @@ const Assets = () => {
                 <Text style={s.total}>{portfolio ? usd(total, 2) : "—"}</Text>
             </View>
 
-            <View style={s.segmented}>
-                {KINDS.map(k => (
-                    <Pressable key={k} style={[s.seg, k === kind && s.segOn]} onPress={() => setKind(k)} accessibilityRole="button" accessibilityState={{ selected: k === kind }}>
-                        <Text style={[s.segText, k === kind && s.segTextOn]}>{k}</Text>
-                    </Pressable>
-                ))}
-            </View>
+            <SlidingSegmented
+                options={KINDS}
+                value={kind}
+                onChange={k => setKind(k as (typeof KINDS)[number])}
+                trackColor={palette.surface2}
+                pillColor={palette.surface}
+                activeColor={palette.text}
+                inactiveColor={palette.textSecondary}
+                height={46}
+                style={{ marginTop: 18 }}
+            />
 
             {kind !== "Tokens" ? (
                 <View style={s.empty}>
@@ -56,16 +61,12 @@ const Assets = () => {
                 </View>
             ) : (
                 <>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips} style={s.chipScroll}>
-                        {[{ id: "all", name: "All" }, ...CHAINS].map(c => {
-                            const on = c.id === chain;
-                            return (
-                                <Pressable key={c.id} onPress={() => setChain(c.id)} style={[s.chip, on && s.chipOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
-                                    <Text style={[s.chipText, on && s.chipTextOn]}>{c.name}</Text>
-                                </Pressable>
-                            );
-                        })}
-                    </ScrollView>
+                    <SlidingChips
+                        options={[{ id: "all", label: "All" }, ...CHAINS.map(c => ({ id: c.id, label: c.name }))]}
+                        value={chain}
+                        onChange={setChain}
+                        p={palette}
+                    />
 
                     {error && <Text style={s.error}>Couldn't load wallet: {error}</Text>}
                     {!portfolio && !error && <ActivityIndicator style={{ marginTop: 24 }} />}

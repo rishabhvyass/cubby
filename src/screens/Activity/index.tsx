@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Icon, Sticker } from "../../art/Art";
+import { Icon } from "../../art/Art";
+import { SlidingChips } from "../../components/SlidingSelector";
 import { AccountHeader } from "../../components/AccountHeader";
-import { activityFilters, ActivityItem } from "../../data/demoWallet";
-import { loadActivity } from "../../services/activity";
+import { activityFilters, ActivityItem, loadActivity } from "../../services/activity";
 import { usePortfolio } from "../../state/portfolio";
-import { useFloat, useRise, useRow } from "../../motion/motion";
+import { useRow } from "../../motion/motion";
 import { Palette, radius } from "../../theme/tokens";
 import { useTheme } from "../../theme/useTheme";
 
@@ -42,7 +42,7 @@ const Row = ({ item, index, last, p, s }: { item: ActivityItem; index: number; l
     );
 };
 
-const Activity = ({ onOpenRecap }: { onOpenRecap: () => void }) => {
+const Activity = () => {
     const insets = useSafeAreaInsets();
     const { palette: p } = useTheme();
     const s = useMemo(() => createStyles(p), [p]);
@@ -50,9 +50,6 @@ const Activity = ({ onOpenRecap }: { onOpenRecap: () => void }) => {
     const [items, setItems] = useState<ActivityItem[] | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
     const [filter, setFilter] = useState<(typeof activityFilters)[number]>("All");
-    const rise = useRise(0);
-    const floatA = useFloat({ tiltDeg: 10, durationMs: 5000 });
-    const floatB = useFloat({ tiltDeg: -8, durationMs: 5000, delayMs: 600 });
 
     useEffect(() => {
         let cancelled = false;
@@ -71,31 +68,12 @@ const Activity = ({ onOpenRecap }: { onOpenRecap: () => void }) => {
             <AccountHeader />
             <Text style={s.title}>Activity</Text>
 
-            <Animated.View style={rise}>
-                <Pressable style={s.recap} onPress={onOpenRecap} accessibilityRole="button" accessibilityLabel="Watch September recap">
-                    <View style={{ flex: 1 }}>
-                        <Text style={s.recapKicker}>Your month, in 3 cards</Text>
-                        <Text style={s.recapTitle}>September on-chain</Text>
-                        <View style={s.watch}>
-                            <View style={s.play}><Icon name="play" size={16} color={p.accent} /></View>
-                            <Text style={s.watchText}>Watch recap</Text>
-                        </View>
-                    </View>
-                    <Animated.View style={[s.stickerA, floatA]}><Sticker name="one_year" height={70} /></Animated.View>
-                    <Animated.View style={[s.stickerB, floatB]}><Sticker name="first_yield" height={60} /></Animated.View>
-                </Pressable>
-            </Animated.View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips} style={s.chipScroll}>
-                {activityFilters.map(f => {
-                    const on = f === filter;
-                    return (
-                        <Pressable key={f} onPress={() => setFilter(f)} style={[s.filter, on && s.filterOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
-                            <Text style={[s.filterText, on && s.filterTextOn]}>{f}</Text>
-                        </Pressable>
-                    );
-                })}
-            </ScrollView>
+            <SlidingChips
+                options={activityFilters.map(f => ({ id: f, label: f }))}
+                value={filter}
+                onChange={f => setFilter(f as (typeof activityFilters)[number])}
+                p={p}
+            />
 
             {days.map(day => {
                 const group = shown.filter(i => i.day === day);

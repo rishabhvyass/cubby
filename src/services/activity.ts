@@ -1,9 +1,24 @@
 import { Chain, CHAINS } from "../config/chains";
 import { KNOWN_TOKENS } from "../config/tokens";
-import { ActivityCategory, ActivityItem, ActivityKind } from "../data/demoWallet";
 import { fmtAmount, usd } from "./format";
 import { getEthPrice, getTokenPrices } from "./prices";
 import { rpc } from "./rpc";
+
+export type ActivityCategory = "Swaps" | "Transfers" | "NFTs" | "DeFi";
+export type ActivityKind = "swap" | "send" | "receive" | "mint" | "stake" | "approve" | "contract";
+export type ActivityItem = {
+    day: string;
+    category: ActivityCategory;
+    kind: ActivityKind;
+    title: string;
+    meta: string;
+    amount: string;
+    amountTone: "ink" | "positive" | "secondary";
+    time: string;
+    tile: string;
+    status?: "pending" | "failed";
+};
+export const activityFilters = ["All", "Swaps", "Transfers", "NFTs", "DeFi"] as const;
 
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 const ZERO = "0x0000000000000000000000000000000000000000";

@@ -1,6 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "../art/Art";
+import { PressableScale } from "./PressableScale";
 import { setThemePref, ThemePref, useThemePref } from "../theme/themePreference";
 import { useTheme } from "../theme/useTheme";
 
@@ -25,7 +26,7 @@ export const ThemeSheet = ({ visible, onClose }: { visible: boolean; onClose: ()
                     {OPTIONS.map(o => {
                         const on = pref === o.key;
                         return (
-                            <Pressable
+                            <PressableScale
                                 key={o.key}
                                 onPress={() => { setThemePref(o.key); onClose(); }}
                                 accessibilityRole="radio"
@@ -39,7 +40,7 @@ export const ThemeSheet = ({ visible, onClose }: { visible: boolean; onClose: ()
                                 <View style={[styles.radio, { borderColor: on ? p.text : p.border, backgroundColor: on ? p.accent : "transparent" }]}>
                                     {on && <Icon name="check" size={14} color={p.onAccent} />}
                                 </View>
-                            </Pressable>
+                            </PressableScale>
                         );
                     })}
                 </View>

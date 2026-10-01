@@ -19,20 +19,27 @@ export type History = {
  * Only the top holdings by value are fetched to stay inside CoinGecko rate limits.
  */
 export const loadHistory = async (holdings: Holding[], range: RangeKey): Promise<History> => {
-    const top = [...holdings].sort((a, b) => b.value - a.value).slice(0, TOP_N);
-    const series = await Promise.all(top.map(async h => {
-        const platform = CHAINS.find(c => c.id === h.chain)!.cgPlatform;
-        const prices = await getHistory(h.address ? { platform, address: h.address } : { native: true }, DAYS[range]);
-        return { h, prices };
+    // Same asset on several chains (ETH, USDC…) shares one price series, so merge by symbol first.
+    const bySymbol = new Map<string, { ref: Holding; amount: number; value: number }>();
+    for (const h of holdings) {
+        const cur = bySymbol.get(h.symbol);
+        if (cur) { cur.amount += h.amount; cur.value += h.value; }
+        else bySymbol.set(h.symbol, { ref: h, amount: h.amount, value: h.value });
+    }
+    const top = [...bySymbol.values()].sort((a, b) => b.value - a.value).slice(0, TOP_N);
+    const series = await Promise.all(top.map(async ({ ref, amount }) => {
+        const platform = CHAINS.find(c => c.id === ref.chain)!.cgPlatform;
+        const prices = await getHistory(ref.address ? { platform, address: ref.address } : { native: true }, DAYS[range]);
+        return { symbol: ref.symbol, amount, prices };
     }));
 
     const len = Math.min(...series.map(s => s.prices.length));
     const points = Array.from({ length: len }, (_, i) =>
-        series.reduce((sum, { h, prices }) => sum + h.amount * prices[prices.length - len + i][1], 0));
+        series.reduce((sum, { amount, prices }) => sum + amount * prices[prices.length - len + i][1], 0));
 
-    const contributions = series.map(({ h, prices }) => ({
-        symbol: h.symbol,
-        delta: h.amount * (prices[prices.length - 1][1] - prices[prices.length - len][1]),
+    const contributions = series.map(({ symbol, amount, prices }) => ({
+        symbol,
+        delta: amount * (prices[prices.length - 1][1] - prices[prices.length - len][1]),
     })).sort((a, b) => b.delta - a.delta);
 
     const change = points[len - 1] - points[0];

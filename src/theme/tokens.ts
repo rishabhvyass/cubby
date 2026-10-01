@@ -30,6 +30,8 @@ export type Palette = {
   surface2: string;
   /** floating tab bar background */
   bar: string;
+  /** inactive icon colour on the tab bar (design: #8F8F8A light, #8F8F8F dark) */
+  tabInactive: string;
   text: string;
   textSecondary: string;
   /** Hairline borders on cards, chips, inputs */
@@ -57,6 +59,7 @@ export const light: Palette = {
   surface: '#FFFFFF',
   surface2: '#EDEDE6',
   bar: '#0A0A0A',
+  tabInactive: '#8F8F8A',
   text: '#0A0A0A', //            17.9:1 on bg
   textSecondary: '#5C5C56', //   6.1:1
   border: 'rgba(10,10,10,0.09)',
@@ -78,6 +81,7 @@ export const dark: Palette = {
   surface: '#111111',
   surface2: '#1A1A1A',
   bar: '#161616',
+  tabInactive: '#8F8F8F',
   text: '#F5F5F5', //            18.7:1
   textSecondary: '#8F8F8F', //   6.3:1
   border: 'rgba(255,255,255,0.09)',
