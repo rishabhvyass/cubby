@@ -25,10 +25,6 @@ Most crypto apps shout: red, green, rockets, noise. **Cubby is the opposite.** I
 - **Optional wallet connection** (MetaMask, WalletConnect, Coinbase, …) to swap. Your wallet app signs every step; Cubby never holds keys.
 - **Calm by design.** Quiet money screens, delight reserved for stickers, the mascot and milestones. No confetti on price moves.
 
-<div align="center">
-<img src="docs/connect-wallet.png" alt="Connect a wallet screen" width="320" />
-</div>
-
 ## 🧩 Features
 
 | | |
